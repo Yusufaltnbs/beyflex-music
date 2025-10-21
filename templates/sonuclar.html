@@ -1,0 +1,241 @@
+{% extends 'base.html' %} {% block title %}BeyFlex Keşif Listesi{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Spotify dinleme geçmişinize göre kişiselleştirilmiş 3 farklı şarkı öneri listeniz. BeyFlex Müzik ile yeni favorilerinizi hemen keşfedin!">
+{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* ----- BASE.HTML'den GELENLERİ TAMAMLAYICI STILLER ----- */
+    /* Reklam alanı/Ortalama base.html'deki .content-container'dan geliyor */
+
+    .header { text-align: center; margin-bottom: 20px; }
+    /* h1 rengi base.html'den geliyor */
+
+    /* Bilgi Kutusu Stilleri (base.html'den gelenler üzerine ekleme) */
+    .bilgi-kutusu { 
+        /* background, shadow, vs base'den */
+        margin-bottom: 30px; 
+    }
+    /* h3, p renkleri base'den */
+
+    /* Sütun Stilleri (base.html'den gelenler üzerine ekleme) */
+    .sutun-konteyner { 
+        display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; 
+    }
+    .sutun { 
+        /* background, shadow, vs base'den */
+        flex: 1; min-width: 280px; padding: 15px 20px;
+    }
+    /* h2 rengi, border'ı base'den */
+
+    /* Şarkı Kartı Stilleri (base.html'den gelenler üzerine ekleme) */
+    ul#results-genel, ul#results-top, ul#results-recent, ul#results-bonus { /* ID'leri hedef alalım */
+        list-style-type: none; padding: 0; margin: 0; 
+    }
+    li.sarki-karti { 
+        /* border-bottom, transition, cursor base'den */
+        display: flex; align-items: center; margin-bottom: 15px; padding: 10px; 
+    }
+    li.sarki-karti:last-child { border-bottom: none; margin-bottom: 0; }
+    /* Hover efekti base'den geliyor */
+    .sarki-karti img { 
+        width: 50px; height: 50px; border-radius: 8px; margin-right: 15px; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Gölgeyi biraz azaltalım */
+    }
+    .sarki-bilgisi { display: flex; flex-direction: column; overflow: hidden; }
+    /* strong, span renkleri base'den */
+    .sarki-bilgisi strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sarki-bilgisi span { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Bonus Kutusu Stilleri (base.html'den gelenler üzerine ekleme) */
+    .bonus-kutusu { 
+        /* background, border base'den */
+        border-radius: 12px; padding: 20px; margin-top: 30px; text-align: center; 
+    }
+    /* h2 rengi base'den */
+    .bonus-kutusu ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .bonus-kutusu li.sarki-karti { /* Bonus kartlarını da sarki-karti yapalım */
+         background-color: #282828; /* base'deki li yerine bunu kullanalım */
+         color: #e0e0e0;
+         width: 300px; /* Sabit genişlik verelim */
+         border:none !important; /* Alt çizgiyi kaldıralım */
+         padding: 10px !important; /* Padding'i ezelim */
+         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         border-radius: 8px; /* Köşeyi yuvarlayalım */
+         margin-bottom: 10px !important; /* Boşluk */
+    }
+    .bonus-kutusu li.sarki-karti:last-child { margin-bottom: 10px !important; } /* Sonuncuda da boşluk */
+
+    /* YÜKLENİYOR ANİMASYONU (V20.0 ile AYNI) */
+    .loading-spinner { /* ... (V20.0'daki kod) ... */ 
+        border: 4px solid #333; border-top: 4px solid #1DB954; border-radius: 50%;
+        width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 30px auto; 
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loading-container { text-align: center; padding: 20px; color: #a0a0a0; }
+    .error-message { color: #ff4d4d; font-weight: bold; text-align: center; padding: 20px; }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="header">
+        <h1>👑 İşte BeyFlex Keşif Listesi! 👑</h1>
+    </div>
+
+    <div class="bilgi-kutusu">
+        <div class="bilgi-item">
+            <h3>Kayıtlı Şarkı Sayın</h3>
+            <p id="kayitli-sayisi">...</p> 
+        </div>
+        <div class="bilgi-item">
+            <h3>En Çok Dinlediğin Sanatçı</h3>
+            <p id="top-sanatci">...</p> 
+        </div>
+    </div>
+
+    <div class="sutun-konteyner">
+        
+        <div class="sutun">
+            <h2>Genel Keşifler</h2>
+            <div id="loading-genel" class="loading-container">
+                <div class="loading-spinner"></div>
+                <span>BeyFlex Arşivleri Taranıyor...</span>
+            </div>
+            <ul id="results-genel" style="display: none;"></ul> 
+            <p id="error-genel" class="error-message" style="display: none;"></p> </div>
+        
+        <div class="sutun">
+            <h2>'En Çok Dinlediklerin' Listene Göre</h2>
+            <div id="loading-top" class="loading-container">
+                 <div class="loading-spinner"></div>
+                 <span>Hazine Sandıkları Açılıyor...</span>
+            </div>
+            <ul id="results-top" style="display: none;"></ul>
+            <p id="error-top" class="error-message" style="display: none;"></p> 
+        </div>
+        
+        <div class="sutun">
+            <h2>'Yakın Zamanda Dinlediklerin' Listene Göre</h2>
+            <div id="loading-recent" class="loading-container">
+                 <div class="loading-spinner"></div>
+                 <span>Yeni Parşömenler Bulunuyor...</span>
+            </div>
+             <ul id="results-recent" style="display: none;"></ul>
+             <p id="error-recent" class="error-message" style="display: none;"></p>
+        </div>
+    </div>
+
+    <div class="bonus-kutusu">
+        <h2>HARİKASIN! Bunları Biz Önerecektik Ama Sen Çoktan Bulmuşsun</h2>
+         <div id="loading-bonus" class="loading-container">
+             <div class="loading-spinner"></div>
+             <span>Bilgelik Ölçülüyor...</span>
+        </div>
+        <ul id="results-bonus" style="display: none;"></ul> 
+        <p id="error-bonus" class="error-message" style="display: none;"></p>
+    </div>
+
+    <script>
+        // Create Song Card Fonksiyonu (V20.0 - DEFAULT_FOTO'yu app.py'den alalım)
+        const defaultFoto = "{{ DEFAULT_FOTO | safe }}"; // App.py'ye DEFAULT_FOTO ekle!
+        function createSongCard(sarki) {
+            return `
+                <li class="sarki-karti">
+                    <img src="${sarki.foto || defaultFoto}" alt="Albüm Kapağı">
+                    <div class="sarki-bilgisi">
+                        <strong>${sarki.adi || '?'}</strong>
+                        <span>${sarki.sanatci || '?'}</span>
+                    </div>
+                </li>
+            `;
+        }
+
+        // Render List Fonksiyonu (V20.0 - Küçük düzeltme)
+        function renderList(listId, loadingId, errorId, sarkilar, hataMesaji = null) {
+            const listElement = document.getElementById(listId);
+            const loadingElement = document.getElementById(loadingId);
+            const errorElement = document.getElementById(errorId);
+            
+            // Önce her şeyi temizle/gizle
+            if(listElement) listElement.innerHTML = ''; 
+            if(listElement) listElement.style.display = 'none';
+            if(errorElement) errorElement.style.display = 'none';
+            if(errorElement) errorElement.textContent = ''; // Hata metnini temizle
+
+            if (hataMesaji) {
+                 if(errorElement) {
+                     errorElement.textContent = hataMesaji;
+                     errorElement.style.display = 'block';
+                 } else { // Genel hata alanı yoksa konsola yaz
+                     console.error(`Hata (${listId}): ${hataMesaji}`);
+                 }
+            } else if (sarkilar && sarkilar.length > 0) {
+                sarkilar.forEach(sarki => {
+                    if(listElement) listElement.innerHTML += createSongCard(sarki);
+                });
+                if(listElement) listElement.style.display = 'block'; // UL'yi göster
+            } else {
+                 const bosMesaj = (listId === 'results-bonus') ? "(Bu defa 'bilinen' kesişim bulunamadı.)" : "(Bu listeye uygun yeni keşif bulunamadı.)";
+                 if(errorElement) {
+                     errorElement.textContent = bosMesaj;
+                     errorElement.style.display = 'block';
+                 } else if (listElement) { // Hata alanı yoksa UL içine yaz
+                     listElement.innerHTML = `<li style="color: #777; text-align: center;">${bosMesaj}</li>`;
+                     listElement.style.display = 'block';
+                 }
+            }
+            if(loadingElement) loadingElement.style.display = 'none'; 
+        }
+
+        // DOMContentLoaded Event Listener (V20.0 - Hata ID'lerini ekle)
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log("Gizli Haberci (JS v20.1) göreve başladı! API çağrılıyor...");
+            try {
+                const response = await fetch("{{ url_for('api_v1_recommendations') }}"); 
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    console.error("API Hatası:", data.error);
+                    if (data.login_required) {
+                        window.location.href = "{{ url_for('login', next=url_for('sonuclar')) }}";
+                        return; 
+                    }
+                    const hata = data.error || `Sunucu Hatası (${response.status})`;
+                    // Hata ID'lerini doğru verelim
+                    renderList('results-genel', 'loading-genel', 'error-genel', [], hata); 
+                    renderList('results-top', 'loading-top', 'error-top', [], hata);
+                    renderList('results-recent', 'loading-recent', 'error-recent', [], hata);
+                    renderList('results-bonus', 'loading-bonus', 'error-bonus', [], hata);
+                    document.getElementById('kayitli-sayisi').textContent = "Hata";
+                    document.getElementById('top-sanatci').textContent = "Hata";
+                    return; 
+                }
+
+                console.log("API'den cevap geldi (v20.1):", data);
+                document.getElementById('kayitli-sayisi').textContent = data.kayitli_sayisi;
+                document.getElementById('top-sanatci').textContent = data.top_sanatci;
+
+                // Hata ID'lerini doğru verelim
+                renderList('results-genel', 'loading-genel', 'error-genel', data.genel_liste); 
+                renderList('results-top', 'loading-top', 'error-top', data.top_liste);
+                renderList('results-recent', 'loading-recent', 'error-recent', data.recent_liste);
+                renderList('results-bonus', 'loading-bonus', 'error-bonus', data.bonus_liste);
+
+            } catch (error) {
+                console.error("JavaScript Fetch Hatası:", error);
+                const hata = "Öneriler yüklenirken bir ağ hatası oluştu.";
+                renderList('results-genel', 'loading-genel', 'error-genel', [], hata);
+                renderList('results-top', 'loading-top', 'error-top', [], hata);
+                renderList('results-recent', 'loading-recent', 'error-recent', [], hata);
+                renderList('results-bonus', 'loading-bonus', 'error-bonus', [], hata);
+                document.getElementById('kayitli-sayisi').textContent = "Hata";
+                document.getElementById('top-sanatci').textContent = "Hata";
+            }
+        });
+    </script>
+
+{% endblock %}

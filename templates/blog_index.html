@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}BeyFlex Blog Arşivi{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="BeyFlex Müzik Blogu: {% if tag_name %}{{ tag_name }} etiketli yazılar.{% else %}Müzik öneri algoritmaları, sanatçı incelemeleri, yeni keşifler ve müzik dünyasından haberler. Tüm yazılarımız.{% endif %}">
+{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Blog listesi için özel stiller */
+    .blog-list-item {
+        background-color: #1e1e1e; /* Koyu tema */
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .blog-list-item h2 a {
+        color: #1DB954; /* Yeşil Başlık */
+        text-decoration: none;
+        font-size: 1.8rem;
+    }
+    .blog-list-item h2 a:hover {
+        text-decoration: underline;
+    }
+    .blog-meta {
+        font-size: 0.9rem;
+        color: #a0a0a0;
+        margin-top: -10px;
+        margin-bottom: 15px;
+    }
+    .blog-excerpt p { /* Yazının ilk paragrafı (özet) */
+        color: #e0e0e0;
+        line-height: 1.6;
+    }
+    .read-more {
+        display: inline-block;
+        margin-top: 10px;
+        color: #1DB954;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 style="text-align: center; color: #ffffff; margin-bottom: 30px;">BeyFlex Blog Arşivi</h1>
+
+    {% for post in posts %}
+        <article class="blog-list-item">
+            <h2><a href="{{ url_for('blog_post', path=post.path) }}">{{ post.meta.get('title', 'Başlıksız Yazı') }}</a></h2>
+            
+            <p class="blog-meta"> Yayınlanma: {{ post.meta.get('published', 'Bilinmiyor') }} 
+                {% if post.meta.get('author') %} | Yazar: {{ post.meta.author }} {% endif %}
+            </p> {% if post.meta.get('tags') %}
+            <div class="tags-list" style="margin-bottom: 10px;">
+                {% for tag in post.meta.tags %}
+                    <a href="{{ url_for('tag_archive', tag=tag) }}" class="tag-link">{{ tag }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="blog-excerpt"> <p> {{ post.meta.get('description', post.html | striptags | truncate(100)) }}
+                </p>
+            </div>
+            <a href="{{ url_for('blog_post', path=post.path) }}" class="read-more">Devamını Oku &rarr;</a>
+        </article>
+    {% else %}
+        <p style="text-align: center; color: #a0a0a0;">Henüz hiç blog yazısı yok!</p>
+    {% endfor %}
+
+{% endblock %}

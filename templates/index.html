@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Ana Sayfa - BeyFlex Müzik Sistemi{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="BeyFlex Müzik: Spotify hesabınıza göre kişisel müzik önerileri alın veya sevdiğiniz sanatçılara benzer yeni isimler keşfedin. Müzik blogumuzu okuyun!">
+{% endblock %}
+
+{% block head_extra %}
+<style>
+    .split-container {
+        display: flex;
+        width: 100%; 
+        min-height: 70vh; 
+        gap: 30px; 
+        align-items: stretch; 
+    }
+    .split-box {
+        flex: 1; 
+        border-radius: 15px;
+        background-color: #1e1e1e; 
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        
+        position: relative; 
+        /* overflow: hidden; */ /* Bunu kaldırmıştık, doğru! */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        /* --- İŞTE KAYIP OLAN KRALİYET KURALLARI! --- */
+        display: flex;
+        flex-direction: column; /* İçeriği alt alta sırala */
+        justify-content: center; /* Dikeyde ortala */
+        align-items: center; /* Yatayda ortala */
+        padding: 40px; /* İç boşluk */
+        text-align: center; /* Metni ortala */
+        text-decoration: none; /* Link alt çizgisini kaldır */
+        /* --- Düzeltme Bitti --- */
+    }
+    .split-box:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+    .split-box h2 {
+        font-size: 2.5rem;
+        color: #ffffff; 
+        margin-bottom: 15px;
+    }
+    .split-box p {
+        font-size: 1.2rem;
+        color: #a0a0a0; 
+    }
+
+    /* Gizli Buton (AYNI) */
+    .split-box .hover-button {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        background-color: #1DB954; color: white; padding: 20px;
+        font-size: 1.5rem; font-weight: bold; text-decoration: none;
+        opacity: 0; transform: translateY(100%);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .split-box:hover .hover-button { opacity: 1; transform: translateY(0%); }
+
+    /* Blog Önizleme Stilleri (AYNI) */
+    .blog-preview-section { margin-top: 50px; text-align: center; }
+    .blog-preview-section h2 { color: #ffffff; margin-bottom: 30px; font-size: 2rem; }
+    .blog-preview-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .blog-preview-item { /* Hafif Değişiklikler */
+        background-color: #1e1e1e; 
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        width: 30%; 
+        min-width: 280px; 
+        transition: transform 0.2s ease;
+        overflow: hidden; /* Resmin taşmasını engelle */
+        display: flex; /* İçeriği dikey yapmak için */
+        flex-direction: column;
+    }
+    /* YENİ RESİM STİLİ */
+    .blog-preview-image {
+        width: 100%; /* Kutunun tamamını kapla */
+        height: 180px; /* Sabit yükseklik verelim */
+        object-fit: cover; /* Oranı koru, kırp */
+    }
+    
+    /* Yazı Alanı */
+    .blog-preview-content {
+        padding: 15px 20px 20px 20px; /* İç boşluk */
+        text-align: left; 
+        flex-grow: 1; /* Esneyebilsin */
+        display: flex; flex-direction: column; /* İçeriği dikey hizala */
+    }
+    .blog-preview-item:hover { transform: translateY(-5px); }
+    .blog-preview-item h3 a { color: #1DB954; text-decoration: none; font-size: 1.3rem; display: block; margin-bottom: 5px; }
+    .blog-preview-item h3 a:hover { text-decoration: underline; }
+    .blog-preview-meta { font-size: 0.8rem; color: #a0a0a0; margin-bottom: 10px; }
+    .blog-preview-excerpt { color: #c0c0c0; font-size: 0.95rem; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
+    .read-more { display: inline-block; margin-top: 10px; color: #1DB954; font-weight: bold;display: inline-block; margin-top: auto; color: #1DB954; font-weight: bold; padding-top: 10px; }
+
+    /* ############################################# */
+    /* --- YENİ "ESNEK KULE" MOBİL FERMANI! --- */
+    /* ############################################# */
+    /* Ekran genişliği 768 piksel veya daha darsa */
+    @media (max-width: 768px) {
+        .split-container {
+            /* flex-direction: column; YOK! Yan yana kalsınlar. */
+            gap: 15px; /* Aradaki boşluğu daha da azalt */
+            min-height: auto; /* Yükseklik serbest */
+        }
+        .split-box {
+            /* Kutuların içindeki içeriği KÜÇÜLTELİM */
+            padding: 25px 15px; /* İç boşluğu azalt */
+        }
+        .split-box h2 {
+             font-size: 1.8rem; /* Başlığı küçült */
+             margin-bottom: 10px;
+        }
+         .split-box p {
+             font-size: 1rem; /* Metni küçült */
+             line-height: 1.4; /* Satır aralığını azalt */
+        }
+        .split-box .hover-button {
+            font-size: 1rem; /* Butonu küçült */
+            padding: 12px;
+            /* Belki hover butonunu mobilde hiç göstermeyebiliriz? */
+            /* display: none; */ 
+        }
+        
+        /* Blog önizlemesini mobilde alt alta yapalım (Bu kalsın, daha okunaklı olur) */
+        .blog-preview-container {
+            flex-direction: column; 
+            align-items: center; 
+        }
+         .blog-preview-item {
+             width: 90%; 
+             min-width: unset; 
+         }
+    }
+    /* --- Mobil Ferman Bitti --- */
+
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="split-container">
+        <a href="{{ url_for('artist_search') }}" class="split-box">
+            <h2>Şarkıcıya Göre Keşfet</h2>
+            <p>Sevdiğin bir şarkıcıya göre yeni "akraba" şarkıcılar bul!</p>
+            <span class="hover-button">Şarkıcı Öner ➔</span>
+        </a>
+        
+        <a href="{{ url_for('login') }}" class="split-box">
+            <h2>DNA'na Göre Keşfet</h2>
+            <p>Spotify hesabını bağla, dinleme geçmişine göre sana özel listeler oluşturalım!</p>
+            <span class="hover-button">Spotify Hesabını Bağla ➔</span>
+        </a>
+    </div>
+
+    <div class="blog-preview-section">
+        <h2>'Blogdan Son Yazılarımıza Göz Atın!'</h2>
+        <div class="blog-preview-container">
+            {% for post in recent_posts %}
+                <article class="blog-preview-item">
+                    <a href="{{ url_for('blog_post', path=post.path) }}">
+                       <img src="{{ post.image }}" alt="{{ post.title }}" class="blog-preview-image">
+                    </a>
+                    
+                    <div class="blog-preview-content">
+                        <h3><a href="{{ url_for('blog_post', path=post.path) }}">{{ post.title }}</a></h3>
+                        <p class="blog-preview-meta">
+                            {{ post.published }} 
+                            {% if post.author %} | {{ post.author }} {% endif %}
+                        </p>
+                        <p class="blog-preview-excerpt">
+                             {{ post.description }}
+                        </p>
+                        <a href="{{ url_for('blog_post', path=post.path) }}" class="read-more">'Devamını Oku' &rarr;</a>
+                    </div>
+                </article>
+            {% else %}
+                <p style="color: #a0a0a0;">'Henüz blog yazısı yok.'</p>
+            {% endfor %}
+        </div>
+         <p style="margin-top: 30px;"><a href="{{ url_for('blog_index') }}" style="font-size: 1.1rem;">'Tüm Blog Yazıları...'</a></p>
+    </div>
+{% endblock %}

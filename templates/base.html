@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BeyFlex Müzik Sistemi{% endblock %}</title>
+
+    {% block meta_description %}
+    <meta name="description" content="BeyFlex Müzik Sistemi ile Spotify DNA'nızı analiz edin, size özel şarkı ve sanatçı önerileri alın veya blogumuzda müzik dünyasını keşfedin!">
+    {% endblock %}
+
+    <style>
+        /* --- TEMEL STİLLER ve KOYU TEMA --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #e0e0e0;
+            min-height: 100vh; /* Footer'ı aşağı itmek için */
+            display: flex;
+            flex-direction: column; /* body'yi dikey flex yap */
+        }
+        main.content-container {
+            flex-grow: 1; /* Ana içerik alanı genişlesin */
+            /* REKLAM ALANI ve ORTALAMA */
+            max-width: 1100px; /* Max genişlik (Daraltıldı) */
+            width: 90%; /* Daha küçük ekranlarda kenarlarda boşluk kalsın */
+            margin: 30px auto; /* Üst/Alt boşluk + Yanlardan ORTALA */
+            padding: 0; /* İç padding'i kaldıralım, alt elemanlar versin */
+        }
+        h1, h2, h3, h4, h5, h6 {
+             color: #ffffff; /* Başlıkları beyaz yapalım */
+        }
+        a { color: #1DB954; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* --- ÜÇ SÜTUNLU NAVBAR STİLLERİ (v18.10 Düzeltmesi) --- */
+        .navbar {
+            background-color: #0a0a0a; /* Biraz daha koyu */
+            padding: 15px 5%; /* Yan boşlukları yüzde ile verelim */
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Gölgeyi belirginleştir */
+            position: sticky; /* Sayfa kaydırılsa bile üstte kalsın */
+            top: 0;
+            z-index: 100; /* Diğer elemanların üstünde olsun */
+        }
+        .nav-section {
+            flex: 1; /* Eşit yer kapla */
+            display: flex;
+            align-items: center;
+        }
+        .logo-section { justify-content: flex-start; } /* Sola yasla */
+        .links-section { justify-content: center; } /* Ortala */
+        .placeholder-section { justify-content: flex-end; } /* Sağa yasla */
+
+        .navbar .logo { font-size: 24px; font-weight: bold; color: #1DB954; text-decoration: none; }
+        .navbar .nav-links { display: flex; gap: 30px; }
+        .navbar .nav-links a { color: #ffffff; text-decoration: none; font-weight: 500; font-size: 16px; transition: color 0.2s; }
+        .navbar .nav-links a:hover { color: #1DB954; }
+
+        /* --- GENEL KUTU STİLLERİ (Koyu Tema) --- */
+        .bilgi-kutusu, .sutun, .bonus-kutusu, .search-container, .auth-container, .blog-list-item, .blog-post-container {
+             background-color: #1e1e1e;
+             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+             border-radius: 12px;
+             padding: 20px; /* Genel iç boşluk */
+             margin-bottom: 20px; /* Genel alt boşluk */
+        }
+        .bilgi-kutusu { display: flex; justify-content: space-around; }
+        .bilgi-item { text-align: center; }
+        .bilgi-item h3 { color: #a0a0a0; margin: 0 0 5px 0; font-size: 16px; }
+        .bilgi-item p { color: #1DB954; margin: 0; font-size: 24px; font-weight: bold; }
+        .sutun h2, .blog-post-container h1 { color: #ffffff; border-bottom: 2px solid #1DB954; padding-bottom: 5px; font-size: 1.5rem; margin-top: 0; }
+        .bonus-kutusu h2 { color: #1DB954; margin-top: 0; }
+        .sutun, .blog-list-item, .blog-post-container { padding: 25px; } /* Blog ve sütunlara biraz daha padding */
+
+        /* --- ŞARKI KARTI STİLİ (Koyu Tema + Hover) --- */
+        ul { list-style-type: none; padding: 0; margin: 0; }
+        li.sarki-karti {
+            border-bottom: 1px solid #333;
+            display: flex; align-items: center;
+            margin-bottom: 15px; padding: 10px;
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px; /* Başlangıçta da hafif yuvarlak olsun */
+        }
+        li.sarki-karti:last-child { border-bottom: none; margin-bottom: 0; }
+        li.sarki-karti:hover {
+             transform: scale(1.02); /* Daha hafif büyüsün */
+             background-color: #282828;
+        }
+        .sarki-karti img { width: 50px; height: 50px; border-radius: 8px; margin-right: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .sarki-bilgisi { display: flex; flex-direction: column; overflow: hidden; }
+        .sarki-bilgisi strong { color: #ffffff; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sarki-bilgisi span { color: #a0a0a0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- TAG LİNK STİLİ (Koyu Tema) --- */
+         .tag-link {
+             display: inline-block; background-color: #333; color: #ccc;
+             padding: 3px 10px; border-radius: 15px; font-size: 0.8rem;
+             margin-right: 5px; margin-bottom: 5px; text-decoration: none;
+        }
+        .tag-link:hover { background-color: #1DB954; color: #ffffff; text-decoration: none; }
+
+        /* --- FOOTER STİLİ --- */
+        footer {
+            background-color: #0a0a0a; color: #888; text-align: center;
+            padding: 20px 30px; margin-top: auto; /* Footer'ı sayfanın en altına itmek için */
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+        footer a { color: #aaa; margin: 0 10px; }
+        footer a:hover { color: #1DB954; }
+        /* Mobil cihazlar için düzenleme */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column; /* Navbar elemanlarını dikey hizala */
+                align-items: flex-start;
+                padding: 10px 20px;
+            }
+
+            .nav-section {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .logo-section {
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+
+            .links-section {
+                justify-content: center;
+            }
+
+            .navbar .nav-links {
+                flex-wrap: wrap; /* Taşma olursa alt satıra geçsin */
+                gap: 15px; /* Boşluğu azalt */
+                justify-content: center;
+            }
+
+            .navbar .nav-links a {
+                font-size: 14px; /* Daha küçük yazı */
+            }
+        }
+    </style>
+    {% block head_extra %}{% endblock %} </head>
+<body>
+    <nav class="navbar">
+        <div class="nav-section logo-section">
+            <a href="{{ url_for('index') }}" class="logo">BeyFlex MÜZİK</a>
+        </div>
+        <div class="nav-section links-section">
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Ana Sayfa</a>
+                <a href="{{ url_for('sonuclar') }}">Dinlediklerine Göre </a>
+                <a href="{{ url_for('artist_search') }}">Şarkıcıya Göre </a>
+                <a href="{{ url_for('blog_index') }}">Blog</a>
+                <a href="{{ url_for('contact') }}">Bize Ulaşın</a>
+            </div>
+        </div>
+        <div class="nav-section placeholder-section">
+            </div>
+    </nav>
+
+    <main class="content-container">
+        {% block content %}{% endblock %} </main>
+
+    <footer>
+        <p>&copy; {{ now().year }} BeyFlex Müzik Sistemi | <a href="{{ url_for('about') }}">Hakkımızda</a> | <a href="{{ url_for('contact') }}">İletişim</a></p>
+    </footer>
+
+</body>
+</html>

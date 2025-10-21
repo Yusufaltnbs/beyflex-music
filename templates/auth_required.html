@@ -1,0 +1,58 @@
+{% extends 'base.html' %} {% block title %}Giriş Gerekli - BeyFlex Müzik Sistemi{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="BeyFlex Müzik Sistemi özelliğini kullanmak için Spotify hesabınızla güvenli bir şekilde giriş yapmanız gerekmektedir.">
+{% endblock %}
+
+{% block head_extra %}
+<style>
+    .auth-container {
+        max-width: 600px;
+        margin: 80px auto; /* Yukarıdan daha çok boşluk */
+        padding: 40px;
+        background: #1e1e1e; /* Koyu tema */
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    .auth-container h1 {
+        color: #ffc107; /* Uyarı rengi (Sarı) */
+        margin-bottom: 15px;
+        font-size: 2rem;
+    }
+    .auth-container p {
+         color: #c0c0c0; /* Açık Gri Açıklama */
+         font-size: 1.1rem;
+         line-height: 1.6;
+         margin-bottom: 30px;
+    }
+    .login-btn { 
+        /* index.html'deki butonun aynısı olabilir */
+        background-color: #1DB954; color: white; padding: 15px 30px; 
+        text-decoration: none; border-radius: 50px; font-size: 1.2rem; 
+        font-weight: bold; border: none; cursor: pointer;
+        transition: background-color 0.2s;
+        display: inline-block; /* Buton gibi dursun */
+    }
+    .login-btn:hover { background-color: #1aa34a; }
+    .cancel-link {
+        display: block; /* Butonun altına insin */
+        margin-top: 20px;
+        color: #888; /* Soluk renk */
+        font-size: 0.9rem;
+    }
+    .cancel-link:hover { color: #ccc; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>✋ Giriş Gerekli Kral!</h1>
+    <p>
+        Bu "BeyFlex" özelliğine girebilmek için önce Spotify'a bağlanman gerekiyor.
+    </p>
+    <a href="{{ url_for('login') }}" class="login-btn">Spotify Bağlan</a>
+    
+    <a href="{{ url_for('index') }}" class="cancel-link">Vazgeçtim, Ana Sayfaya Dön</a>
+</div>
+{% endblock %}

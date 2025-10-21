@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.meta.get('title', 'Blog Yazısı') }} - BeyFlex Müzik{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ post.meta.get('description', post.html | striptags | truncate(155)) }}"> 
+{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Tek yazı sayfası için özel stiller */
+    .blog-post-container {
+        background-color: #1e1e1e; /* Koyu tema */
+        padding: 30px 40px; /* Daha fazla iç boşluk */
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .blog-post-container h1 {
+        color: #1DB954; /* Yeşil Başlık */
+        font-size: 2.5rem;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    .blog-meta { /* Liste sayfasındakiyle aynı stil */
+        font-size: 0.9rem; color: #a0a0a0; margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 15px;
+    }
+    
+    /* Markdown'dan gelen HTML içeriğini güzelleştirelim */
+    .blog-content {
+        line-height: 1.7; /* Satır aralığı */
+        font-size: 1.1rem; /* Biraz daha büyük yazı */
+        color: #e0e0e0;
+    }
+    .blog-content h2 { /* Alt başlıklar */
+        color: #ffffff;
+        border-bottom: 1px solid #555;
+        padding-bottom: 5px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+    }
+    .blog-content p { margin-bottom: 20px; }
+    .blog-content ul, .blog-content ol { margin-left: 20px; margin-bottom: 20px; }
+    .blog-content li { margin-bottom: 10px; }
+    .blog-content img { /* Resimleri ortala ve güzelleştir */
+        display: block;
+        max-width: 100%; /* Taşmasın */
+        height: auto;
+        margin: 30px auto; /* Üst/Alt boşluk + Ortalama */
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .blog-content a { color: #1DB954; text-decoration: underline; } /* Linkler */
+    .blog-content code { /* Kod blokları (eğer kullanırsan) */
+         background-color: #282828; padding: 2px 5px; border-radius: 4px; font-family: monospace; 
+    }
+    .blog-content pre { /* Çok satırlı kod blokları */
+        background-color: #282828; padding: 15px; border-radius: 8px; overflow-x: auto; /* Yatay kaydırma */
+    }
+    .blog-content blockquote { /* Alıntılar */
+        border-left: 4px solid #1DB954; padding-left: 15px; margin-left: 0; color: #a0a0a0; font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <article class="blog-post-container">
+        <h1>{{ post.meta.get('title', 'Başlıksız Yazı') }}</h1>
+        
+        <p class="blog-meta"> Yayınlanma: {{ post.meta.get('published', 'Bilinmiyor') }} 
+            {% if post.meta.get('author') %} | Yazar: {{ post.meta.author }} {% endif %}
+        </p> {% if post.meta.get('tags') %}
+        <div class="tags-list" style="margin-bottom: 20px;">
+            {% for tag in post.meta.tags %}
+                <a href="{{ url_for('tag_archive', tag=tag) }}" class="tag-link">{{ tag }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="blog-content"> {{ post.html | safe }}
+        </div>
+    </article>
+    
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="{{ url_for('blog_index') }}">&larr; Tüm Blog Yazıları</a>
+    </p>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %} 
+{% block title %}İşte "BeyFlex" Nöronların!{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ center_artist.adi }} dinliyorsanız sevebileceğiniz sanatçı önerileri. BeyFlex Müzik'in 'nöron ağı' ile {{ center_artist.adi }} benzeri yeni favorilerinizi keşfedin!">
+{% endblock %}
+
+{% block head_extra %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<style>
+    /* ----- ÖNCEKİ V19.11 STILLERİ ----- */
+    body { background-color: #121212 !important; color: #e0e0e0 !important; } /* Garanti olsun */
+    .content-container { padding: 30px !important; max-width: 1300px; margin: 20px auto; } /* Reklam alanı */
+
+    .neuron-container { display: flex; flex-direction: column; align-items: center; position: relative; padding: 40px 0; }
+    
+    /* MERKEZ (KARANLIK TEMA!) */
+    .neuron-center {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 220px; height: 220px; border-radius: 50%;
+        background-color: #1e1e1e; /* BEYAZI KALDIR! Koyu gri yap */
+        box-shadow: 0 0 40px rgba(29, 185, 84, 0.6); 
+        border: 5px solid #1DB954;
+        position: relative; overflow: hidden; margin-bottom: 60px;
+    }
+    .neuron-center img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    
+    .center-info { position: absolute; bottom: -50px; left: 0; right: 0; text-align: center; }
+    .center-info h2 { margin: 0; font-size: 1.5rem; color: #ffffff; /* Yazıyı BEYAZ yap */ }
+    
+    .genre-tags { margin-top: 5px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+    .genre-tag { background-color: #333; color: #ccc; /* Rengi koyuya uyarla */ padding: 3px 8px; border-radius: 15px; font-size: 11px; font-weight: 500; text-transform: capitalize; }
+
+    /* KOLLAR (KARANLIK TEMA!) */
+    .neuron-children-container {
+        display: flex; flex-wrap: wrap; justify-content: center; align-items: center; 
+        gap: 40px 60px; max-width: 900px; margin: 0 auto;
+    }
+    .neuron-child { display: flex; flex-direction: column; align-items: center; width: 120px; text-align: center; position: relative; }
+    .neuron-child img {
+        width: 100px; height: 100px; border-radius: 50%;
+        border: 3px solid #444; /* Çerçeveyi koyuya uyarla */
+        transition: transform 0.2s, border-color 0.2s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Gölgeyi koyuya uyarla */
+    }
+    .neuron-child:hover img { transform: scale(1.1); border-color: #1DB954; } /* Hover rengi aynı kalsın */
+    .neuron-child span { margin-top: 10px; font-weight: bold; font-size: 15px; color: #e0e0e0; /* Yazıyı AÇIK GRİ yap */ }
+    
+    /* Genel Başlıklar (KARANLIK TEMA!) */
+     h1 {
+         text-align: center; 
+         margin-top: 80px; 
+         margin-bottom: 40px; 
+         color: #a0a0a0; /* Soluk Gri */
+     }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="neuron-container">
+
+    <div class="neuron-center">
+        <img src="{{ center_artist.foto }}" alt="{{ center_artist.adi }}">
+    </div>
+    <div class="center-info">
+        <h2>{{ center_artist.adi }}</h2>
+        <div class="genre-tags">
+            {% for tur in center_artist.get('turler', []) %}
+                <span class="genre-tag">{{ tur }}</span>
+            {% else %}
+                <span class="genre-tag" style="background-color: #ddd;">Tür Yok</span>
+            {% endfor %}
+        </div>
+    </div>
+    
+
+    <h1 style="text-align: center; margin-top: 80px; margin-bottom: 40px; color: #555;">...Bu Sanatçıları da Sevebilirsin...</h1>
+
+    <div class="neuron-children-container">
+        {% for artist in related_list %}
+            <div class="neuron-child">
+                <img src="{{ artist.foto }}" alt="{{ artist.adi }}">
+                <span>{{ artist.adi }}</span>
+            </div>
+        {% else %}
+            <p style="color: #777;">Üzgünüz, bu sanatçıya benzer kimse bulunamadı.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
